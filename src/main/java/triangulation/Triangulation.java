@@ -14,6 +14,7 @@ public class Triangulation {
 
     private static final int REQUESTED_LEVEL = 3;
     private static final int DISPLAYED = 5;
+    private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
 
     public void trianguleBataw(List<Pair> pairs) {
         System.out.println("Listing trades...");
@@ -48,8 +49,10 @@ public class Triangulation {
         Iterator<Trade> iterator = path.iterator();
         while(iterator.hasNext()){
             Trade trade = iterator.next();
-            //TODO ajouter les frais de trade!
             variationAmount = variationAmount.multiply(trade.getPrice());
+            BigDecimal tradeFees = variationAmount.divide(BigDecimal.valueOf(100)).multiply(FEES);
+            variationAmount = variationAmount.subtract(tradeFees);
+
         }
         return new Variation(variationAmount.subtract(new BigDecimal(100l)).setScale(2, BigDecimal.ROUND_HALF_DOWN), path);
     }
