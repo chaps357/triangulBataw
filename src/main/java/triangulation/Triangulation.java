@@ -12,7 +12,7 @@ import java.util.*;
 
 public class Triangulation {
 
-    private static final int REQUESTED_LEVEL = 3;
+    private static final int NUMBER_OF_TRADES = 3;
     private static final int DISPLAYED = 5;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
 
@@ -24,7 +24,7 @@ public class Triangulation {
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
         for (Map.Entry<String, Set<Trade>> entry : entries) {
             String originCrypto = entry.getKey();
-            List<LinkedList<Trade>> paths = findPaths(originCrypto, REQUESTED_LEVEL, trades);
+            List<LinkedList<Trade>> paths = findPaths(originCrypto, NUMBER_OF_TRADES, trades);
             totalPaths.addAll(paths);
         }
         System.out.println("Found "+totalPaths.size()+" paths!");
@@ -92,6 +92,7 @@ public class Triangulation {
                 paths.add(path);
                 return paths;
             }else{
+                //Si on ne peut pas revenir à la crypto d'origine on laisse tomber
                 return null;
             }
         }
