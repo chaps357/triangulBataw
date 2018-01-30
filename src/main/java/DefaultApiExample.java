@@ -12,7 +12,6 @@ public class DefaultApiExample {
         DefaultApi apiInstance = new DefaultApi();
         try {
             List<Pair> result = apiInstance.price();
-//            System.out.println(result);
             Triangulation triangulation = new Triangulation();
             triangulation.trianguleBataw(result);
         } catch (ApiException e) {

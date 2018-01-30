@@ -14,7 +14,9 @@ public class Triangulation {
 
 
     public void trianguleBataw(List<Pair> pairs) {
+        System.out.println("Listing trades...");
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
+        System.out.println("Finding paths...");
         Set<Map.Entry<String, Set<Trade>>> entries = trades.entrySet();
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
         for (Map.Entry<String, Set<Trade>> entry : entries) {
@@ -22,7 +24,31 @@ public class Triangulation {
             List<LinkedList<Trade>> paths = findPaths(originCypto, 1, trades);
             totalPaths.addAll(paths);
         }
+        System.out.println("Found "+totalPaths.size()+" paths!");
+        System.out.println("Calculating variations...");
+        List<Variation> variations = new ArrayList<>();
+        for(LinkedList<Trade> path:totalPaths){
+            Variation variation = findVariation(path);
+            variations.add(variation);
+        }
+
+        System.out.println("Sort variations...");
+        variations.sort((o1, o2) -> o2.getVariationAmount().compareTo(o1.getVariationAmount()));
+        System.out.println("Results!");
+        for(int i=0; i<10; i++){
+            System.out.println(variations.get(i));
+        }
         return;
+    }
+
+    private Variation findVariation(LinkedList<Trade> path) {
+        BigDecimal variationAmount = BigDecimal.valueOf(100l);
+        Iterator<Trade> iterator = path.iterator();
+        while(iterator.hasNext()){
+            Trade trade = iterator.next();
+            variationAmount = variationAmount.multiply(trade.getPrice());
+        }
+        return new Variation(variationAmount.subtract(new BigDecimal(100l)), path);
     }
 
     private List<LinkedList<Trade>> findPaths(String originCypto, int requestedLevel, Map<String, Set<Trade>> trades) {
