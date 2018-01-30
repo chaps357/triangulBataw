@@ -12,8 +12,8 @@ import java.util.*;
 
 public class Triangulation {
 
-    private static final int NUMBER_OF_TRADES = 7;
-    private static final int DISPLAYED = 5;
+    private static final int NUMBER_OF_TRADES = 100;
+    private static final int DISPLAYED = 10;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
     private static final String INITIAL_CRYPTO = "BTC";
 

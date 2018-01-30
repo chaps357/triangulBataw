@@ -24,7 +24,7 @@ public class Variation{
     public String toString() {
         return "Variation{" +
                 "variationAmount=" + variationAmount +
-                "%, path=" + path +
+                "%, Nb of Trade="+path.size()+", path=" + path +
                 '}';
     }
 }
