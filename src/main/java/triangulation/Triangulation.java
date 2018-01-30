@@ -3,58 +3,45 @@ package triangulation;
 import io.swagger.client.model.Pair;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.RoundingMode;
+import java.util.*;
 
 public class Triangulation {
 
 
     public void trianguleBataw(List<Pair> pairs) {
-
-        Map<String, List<Couple>> convertions = listCouples(pairs);
-
+        Map<String, Set<Trade>> trades  = listAllTrades(pairs);
+        System.out.println(trades);
         return;
     }
 
-    private Map<String, List<Couple>> listCouples(List<Pair> pairs) {
-        Map<String, List<Couple>> convertions = new HashMap<>();
-        for (Pair pair : pairs) {
-            if (pair.getSymbol().equals("123456")) {
+    private Map<String,Set<Trade>> listAllTrades(List<Pair> pairs) {
+        Map<String,Set<Trade>> trades = new HashMap<>();
+        for(Pair pair:pairs){
+            String pairSymbol = pair.getSymbol();
+            if (pairSymbol.equals("123456")) {
                 continue;
             }
-            Couple couple = new Couple(pair.getSymbol(), pair.getPrice());
-            if (convertions.get(couple.getCrypto()) == null) {
-                List<Couple> couples = new ArrayList<>();
-                couples.add(couple);
-                convertions.put(couple.getCrypto(), couples);
-            } else {
-                convertions.get(couple.getCrypto()).add(couple);
-            }
+            String masterCrypto = findMasterCrypto(pairSymbol);
+            String crypto = pairSymbol.replaceAll(masterCrypto, "");
+            //il faut créer un trade pour la crypto et un pour la master avec le prix inversé
+            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice());
+            Trade masterTrade = new Trade(masterCrypto, crypto, BigDecimal.ONE.divide(pair.getPrice(), 6, RoundingMode.HALF_EVEN));
 
-            if (convertions.get(couple.getMasterCrypto()) == null) {
-                List<Couple> couples = new ArrayList<>();
-                couples.add(couple);
-                convertions.put(couple.getMasterCrypto(), couples);
-            } else {
-                convertions.get(couple.getMasterCrypto()).add(couple);
-            }
+            addNewTrade(trades, crypto, cryptoTrade);
+            addNewTrade(trades, masterCrypto, masterTrade);
         }
-        return convertions;
+        return trades;
     }
 
-}
-
-class Couple {
-    private String crypto;
-    private String masterCrypto;
-    private BigDecimal price;
-
-    public Couple(String pairSymbole, BigDecimal price) {
-        this.masterCrypto = findMasterCrypto(pairSymbole);
-        this.crypto = pairSymbole.replaceAll(masterCrypto, "");
-        this.price = price;
+    private void addNewTrade(Map<String, Set<Trade>> trades, String crypto, Trade trade) {
+        if(trades.get(crypto)==null){
+            HashSet<Trade> tradeSet = new HashSet<>();
+            tradeSet.add(trade);
+            trades.put(crypto, tradeSet);
+        }else{
+            trades.get(crypto).add(trade);
+        }
     }
 
     private String findMasterCrypto(String pairSymbole) {
@@ -68,17 +55,5 @@ class Couple {
             return "BNB";
         }
         throw new RuntimeException("WTF is the master crypto? : " + pairSymbole);
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public String getCrypto() {
-        return crypto;
-    }
-
-    public String getMasterCrypto() {
-        return masterCrypto;
     }
 }
