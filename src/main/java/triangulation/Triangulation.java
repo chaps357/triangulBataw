@@ -48,7 +48,7 @@ public class Triangulation {
             Trade trade = iterator.next();
             variationAmount = variationAmount.multiply(trade.getPrice());
         }
-        return new Variation(variationAmount.subtract(new BigDecimal(100l)), path);
+        return new Variation(variationAmount.subtract(new BigDecimal(100l)).setScale(2, BigDecimal.ROUND_HALF_DOWN), path);
     }
 
     private List<LinkedList<Trade>> findPaths(String originCypto, int requestedLevel, Map<String, Set<Trade>> trades) {
@@ -117,9 +117,9 @@ public class Triangulation {
             String masterCrypto = findMasterCrypto(pairSymbol);
             String crypto = pairSymbol.replaceAll(masterCrypto, "");
             //il faut créer un trade pour la crypto et un pour la master avec le prix inversé
-            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice());
-            Trade masterTrade = new Trade(masterCrypto, crypto, BigDecimal.ONE.divide(pair.getPrice(), 6,
-                    RoundingMode.HALF_EVEN));
+            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice(), pair.getPrice());
+            Trade masterTrade = new Trade(masterCrypto, crypto, BigDecimal.ONE.divide(pair.getPrice(), 10,
+                    RoundingMode.HALF_EVEN), pair.getPrice());
 
             addNewTrade(trades, crypto, cryptoTrade);
             addNewTrade(trades, masterCrypto, masterTrade);

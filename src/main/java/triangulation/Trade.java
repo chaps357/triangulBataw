@@ -6,11 +6,13 @@ public class Trade {
     private final String origin;
     private final String target;
     private final BigDecimal price;
+    private final BigDecimal initialPrice;
 
-    public Trade(String origin, String target, BigDecimal price) {
+    public Trade(String origin, String target, BigDecimal price, BigDecimal initialPrice) {
         this.origin = origin;
         this.target = target;
         this.price = price;
+        this.initialPrice = initialPrice;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class Trade {
         return "Trade{" +
                 "origin='" + origin + '\'' +
                 ", target='" + target + '\'' +
-                ", price=" + price +
+                ", price=" + initialPrice +
                 '}';
     }
 }
