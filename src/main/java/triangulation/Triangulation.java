@@ -12,6 +12,8 @@ import java.util.*;
 
 public class Triangulation {
 
+    private static final int REQUESTED_LEVEL = 3;
+    private static final int DISPLAYED = 5;
 
     public void trianguleBataw(List<Pair> pairs) {
         System.out.println("Listing trades...");
@@ -20,8 +22,8 @@ public class Triangulation {
         Set<Map.Entry<String, Set<Trade>>> entries = trades.entrySet();
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
         for (Map.Entry<String, Set<Trade>> entry : entries) {
-            String originCypto = entry.getKey();
-            List<LinkedList<Trade>> paths = findPaths(originCypto, 1, trades);
+            String originCrypto = entry.getKey();
+            List<LinkedList<Trade>> paths = findPaths(originCrypto, REQUESTED_LEVEL, trades);
             totalPaths.addAll(paths);
         }
         System.out.println("Found "+totalPaths.size()+" paths!");
@@ -35,7 +37,7 @@ public class Triangulation {
         System.out.println("Sort variations...");
         variations.sort((o1, o2) -> o2.getVariationAmount().compareTo(o1.getVariationAmount()));
         System.out.println("Results!");
-        for(int i=0; i<10; i++){
+        for(int i=0; i<DISPLAYED; i++){
             System.out.println(variations.get(i));
         }
         return;
@@ -46,6 +48,7 @@ public class Triangulation {
         Iterator<Trade> iterator = path.iterator();
         while(iterator.hasNext()){
             Trade trade = iterator.next();
+            //TODO ajouter les frais de trade!
             variationAmount = variationAmount.multiply(trade.getPrice());
         }
         return new Variation(variationAmount.subtract(new BigDecimal(100l)).setScale(2, BigDecimal.ROUND_HALF_DOWN), path);
@@ -53,12 +56,12 @@ public class Triangulation {
 
     private List<LinkedList<Trade>> findPaths(String originCypto, int requestedLevel, Map<String, Set<Trade>> trades) {
         List<LinkedList<Trade>> paths = new ArrayList<>();
-        int level = 0;
+        int level = 1;
         Set<Trade> cryptoTrades = trades.get(originCypto);
         for (Trade trade : cryptoTrades) {
             LinkedList<Trade> newPath = new LinkedList<>();
             newPath.add(trade);
-            paths = findLoops(newPath, level, requestedLevel, trades, originCypto);
+            paths.addAll(findLoops(newPath, level, requestedLevel, trades, originCypto));
         }
         return paths;
     }
@@ -80,11 +83,13 @@ public class Triangulation {
             if (filter.size() > 1) {
                 throw new RuntimeException("IMPOSSIBLE! Many trades leading to same target!");
             }
-            if (filter.size() == 1) {
+            else if (filter.size() == 1) {
                 Trade finalTrade = filter.iterator().next();
                 path.add(finalTrade);
                 paths.add(path);
                 return paths;
+            }else{
+                return null;
             }
         }
         level++;
@@ -92,16 +97,25 @@ public class Triangulation {
             Collection<Trade> filter = Collections2.filter(path, new Predicate<Trade>() {
                 @Override
                 public boolean apply(@Nullable Trade trade) {
-                    return trade.getTarget().equals(newTrade.getTarget());
+                    return trade.getTarget().equals(newTrade.getTarget()) ;
                 }
             });
+
             if(!filter.isEmpty()){
                 continue;
             }else {
                 LinkedList<Trade> newPath = new LinkedList<>();
                 newPath.addAll(path);
                 newPath.add(newTrade);
-                paths.addAll(findLoops(newPath, level, requestedLevel, trades, originCypto));
+                if(newTrade.getTarget().equals(originCypto))
+                {
+                    paths.add(newPath);
+                    return paths;
+                }
+                List<LinkedList<Trade>> loops = findLoops(newPath, level, requestedLevel, trades, originCypto);
+                if(loops!=null) {
+                    paths.addAll(loops);
+                }
             }
         }
         return paths;
