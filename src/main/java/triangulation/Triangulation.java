@@ -12,9 +12,10 @@ import java.util.*;
 
 public class Triangulation {
 
-    private static final int NUMBER_OF_TRADES = 3;
+    private static final int NUMBER_OF_TRADES = 7;
     private static final int DISPLAYED = 5;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
+    private static final String INITIAL_CRYPTO = "BTC";
 
     public void trianguleBataw(List<Pair> pairs) {
         System.out.println("Listing trades...");
@@ -24,6 +25,9 @@ public class Triangulation {
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
         for (Map.Entry<String, Set<Trade>> entry : entries) {
             String originCrypto = entry.getKey();
+            if(INITIAL_CRYPTO!=null && !INITIAL_CRYPTO.equals(originCrypto)){
+                continue;
+            }
             List<LinkedList<Trade>> paths = findPaths(originCrypto, NUMBER_OF_TRADES, trades);
             totalPaths.addAll(paths);
         }
@@ -59,7 +63,7 @@ public class Triangulation {
 
     private List<LinkedList<Trade>> findPaths(String originCypto, int requestedLevel, Map<String, Set<Trade>> trades) {
         List<LinkedList<Trade>> paths = new ArrayList<>();
-        int level = 1;
+        int level = 2;
         Set<Trade> cryptoTrades = trades.get(originCypto);
         for (Trade trade : cryptoTrades) {
             LinkedList<Trade> newPath = new LinkedList<>();
