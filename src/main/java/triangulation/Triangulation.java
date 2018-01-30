@@ -17,6 +17,26 @@ public class Triangulation {
     private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
     private static final String INITIAL_CRYPTO = "BTC";
 
+    public Variation followSpecificPath(List<Pair> pairs, List<String> cryptos){
+        Map<String, Set<Trade>> trades = listAllTrades(pairs);
+        LinkedList<Trade> path = new LinkedList<>();
+
+        for(int i = 0; i<cryptos.size()-1; i++){
+            String crypto = cryptos.get(i);
+            final String nextCrypto = cryptos.get(i+1);
+            Set<Trade> cryptoTrades = trades.get(crypto);
+            Set<Trade> filter = Sets.filter(cryptoTrades, new Predicate<Trade>() {
+                @Override
+                public boolean apply(@Nullable Trade trade) {
+                    return trade.getTarget().equals(nextCrypto);
+                }
+            });
+            path.add(filter.iterator().next());
+        }
+        Variation variation = findVariation(path);
+        return variation;
+    }
+
     public void trianguleBataw(List<Pair> pairs) {
         System.out.println("Listing trades...");
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
