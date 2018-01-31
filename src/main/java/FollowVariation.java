@@ -16,11 +16,9 @@ public class FollowVariation {
             List<String> cryptos = new ArrayList<>();
 
             cryptos.add("BTC");
-            cryptos.add("BQX");
+            cryptos.add("ARN");
             cryptos.add("ETH");
-            cryptos.add("POWR");
-            cryptos.add("BNB");
-            cryptos.add("CMT");
+            cryptos.add("INS");
             cryptos.add("BTC");
 
             while(true) {

@@ -16,6 +16,8 @@ public class Triangulation {
     private static final int DISPLAYED = 10;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
     private static final String INITIAL_CRYPTO = "BTC";
+    private static final double MINIMUM_PERCENT = 0;
+
 
     public Variation followSpecificPath(List<Pair> pairs, List<String> cryptos){
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
@@ -38,9 +40,9 @@ public class Triangulation {
     }
 
     public void trianguleBataw(List<Pair> pairs) {
-        System.out.println("Listing trades...");
+//        System.out.println("Listing trades...");
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
-        System.out.println("Finding paths...");
+//        System.out.println("Finding paths...");
         Set<Map.Entry<String, Set<Trade>>> entries = trades.entrySet();
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
         for (Map.Entry<String, Set<Trade>> entry : entries) {
@@ -51,19 +53,22 @@ public class Triangulation {
             List<LinkedList<Trade>> paths = findPaths(originCrypto, NUMBER_OF_TRADES, trades);
             totalPaths.addAll(paths);
         }
-        System.out.println("Found "+totalPaths.size()+" paths!");
-        System.out.println("Calculating variations...");
+//        System.out.println("Found "+totalPaths.size()+" paths!");
+//        System.out.println("Calculating variations...");
         List<Variation> variations = new ArrayList<>();
         for(LinkedList<Trade> path:totalPaths){
             Variation variation = findVariation(path);
             variations.add(variation);
         }
 
-        System.out.println("Sort variations...");
+//        System.out.println("Sort variations...");
         variations.sort((o1, o2) -> o2.getVariationAmount().compareTo(o1.getVariationAmount()));
-        System.out.println("Results!");
+//        System.out.println("Results!");
         for(int i=0; i<DISPLAYED; i++){
-            System.out.println(variations.get(i));
+            Variation variation = variations.get(i);
+            if(variation.getVariationAmount().compareTo(BigDecimal.valueOf(MINIMUM_PERCENT))==1) {
+                System.out.println(variation);
+            }
         }
         return;
     }
