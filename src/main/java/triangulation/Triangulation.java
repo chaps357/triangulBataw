@@ -14,7 +14,7 @@ public class Triangulation {
 
     private static final int NUMBER_OF_TRADES = 4;
     private static final int DISPLAYED = 10;
-    private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
+    private static final BigDecimal FEES = BigDecimal.valueOf(0.05);
     private static final String INITIAL_CRYPTO = "BNB";
     private static final double MINIMUM_PERCENT = 0;
 

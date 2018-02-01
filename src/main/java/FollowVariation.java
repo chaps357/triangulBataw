@@ -4,6 +4,7 @@ import com.binance.api.price.model.Pair;
 import triangulation.Triangulation;
 import triangulation.Variation;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class FollowVariation {
@@ -16,15 +17,19 @@ public class FollowVariation {
             List<String> cryptos = new ArrayList<>();
 
             cryptos.add("BNB");
-            cryptos.add("ETH");
-            cryptos.add("MDA");
+            cryptos.add("RDN");
             cryptos.add("BTC");
+            cryptos.add("RLC");
             cryptos.add("BNB");
+
+            SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
 
             while(true) {
                 List<Pair> result = apiInstance.price();
                 Variation variation = triangulation.followSpecificPath(result, cryptos);
-                System.out.println(variation);
+                Calendar cal = Calendar.getInstance();
+                String formatDate = sdf.format(cal.getTime());
+                System.out.println(formatDate+":"+variation);
             }
         } catch (ApiException e) {
             System.err.println("Exception when calling DefaultApi#price");
