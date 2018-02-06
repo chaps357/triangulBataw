@@ -11,7 +11,7 @@
  */
 
 
-package io.swagger.client;
+package com.binance.api.price;
 
 import java.util.List;
 import java.util.Map;

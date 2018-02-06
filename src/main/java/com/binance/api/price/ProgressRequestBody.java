@@ -11,7 +11,7 @@
  */
 
 
-package io.swagger.client;
+package com.binance.api.price;
 
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;

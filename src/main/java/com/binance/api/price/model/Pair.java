@@ -11,7 +11,7 @@
  */
 
 
-package io.swagger.client.model;
+package com.binance.api.price.model;
 
 import java.util.Objects;
 

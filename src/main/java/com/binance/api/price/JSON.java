@@ -11,7 +11,7 @@
  */
 
 
-package io.swagger.client;
+package com.binance.api.price;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

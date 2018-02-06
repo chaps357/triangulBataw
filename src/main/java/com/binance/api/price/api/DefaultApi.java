@@ -11,22 +11,21 @@
  */
 
 
-package io.swagger.client.api;
+package com.binance.api.price.api;
 
-import io.swagger.client.ApiCallback;
-import io.swagger.client.ApiClient;
-import io.swagger.client.ApiException;
-import io.swagger.client.ApiResponse;
-import io.swagger.client.Configuration;
-import io.swagger.client.ProgressRequestBody;
-import io.swagger.client.ProgressResponseBody;
+import com.binance.api.price.ApiException;
+import com.binance.api.price.Configuration;
+import com.binance.api.price.model.Pair;
+import com.binance.api.price.ApiCallback;
+import com.binance.api.price.ApiClient;
+import com.binance.api.price.ApiResponse;
+import com.binance.api.price.ProgressRequestBody;
+import com.binance.api.price.ProgressResponseBody;
 
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 
-
-import io.swagger.client.model.Pair;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -66,7 +65,7 @@ public class DefaultApi {
         // create path and map variables
         String localVarPath = "/ticker/price";
 
-        List<io.swagger.client.Pair> localVarQueryParams = new ArrayList<io.swagger.client.Pair>();
+        List<com.binance.api.price.Pair> localVarQueryParams = new ArrayList<com.binance.api.price.Pair>();
 
         Map<String, String> localVarHeaderParams = new HashMap<String, String>();
 

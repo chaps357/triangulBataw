@@ -11,9 +11,9 @@
  */
 
 
-package io.swagger.client.auth;
+package com.binance.api.price.auth;
 
-import io.swagger.client.Pair;
+import com.binance.api.price.Pair;
 
 import java.util.Map;
 import java.util.List;

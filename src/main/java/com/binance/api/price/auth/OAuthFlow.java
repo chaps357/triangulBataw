@@ -11,7 +11,7 @@
  */
 
 
-package io.swagger.client.auth;
+package com.binance.api.price.auth;
 
 public enum OAuthFlow {
     accessCode, implicit, password, application

@@ -193,6 +193,12 @@
       <groupId>com.squareup.okhttp</groupId>
       <artifactId>okhttp</artifactId>
       <version>${okhttp-version}</version>
+        <exclusions>
+            <exclusion>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
       <groupId>com.squareup.okhttp</groupId>
@@ -208,6 +214,11 @@
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
       <version>${jodatime-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.binance.api</groupId>
+      <artifactId>binance-api-client</artifactId>
+      <version>1.0.0</version>
     </dependency>
     <!-- test dependencies -->
     <dependency>

@@ -11,9 +11,7 @@
  */
 
 
-package io.swagger.client;
-
-import java.io.IOException;
+package com.binance.api.price;
 
 import java.util.Map;
 import java.util.List;

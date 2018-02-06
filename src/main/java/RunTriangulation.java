@@ -1,6 +1,6 @@
-import io.swagger.client.ApiException;
-import io.swagger.client.api.DefaultApi;
-import io.swagger.client.model.Pair;
+import com.binance.api.price.ApiException;
+import com.binance.api.price.api.DefaultApi;
+import com.binance.api.price.model.Pair;
 import triangulation.Triangulation;
 
 import java.util.List;

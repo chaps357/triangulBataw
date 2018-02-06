@@ -11,7 +11,7 @@
  */
 
 
-package io.swagger.client;
+package com.binance.api.price;
 
 @javax.annotation.Generated(value = "io.swagger.codegen.languages.JavaClientCodegen", date = "2018-01-22T11:42:40.990Z")
 public class StringUtil {

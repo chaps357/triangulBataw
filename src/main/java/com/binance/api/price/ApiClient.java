@@ -11,8 +11,12 @@
  */
 
 
-package io.swagger.client;
+package com.binance.api.price;
 
+import com.binance.api.price.auth.ApiKeyAuth;
+import com.binance.api.price.auth.Authentication;
+import com.binance.api.price.auth.HttpBasicAuth;
+import com.binance.api.price.auth.OAuth;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -64,7 +68,6 @@ import java.text.ParseException;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
@@ -73,11 +76,6 @@ import javax.net.ssl.X509TrustManager;
 
 import okio.BufferedSink;
 import okio.Okio;
-
-import io.swagger.client.auth.Authentication;
-import io.swagger.client.auth.HttpBasicAuth;
-import io.swagger.client.auth.ApiKeyAuth;
-import io.swagger.client.auth.OAuth;
 
 public class ApiClient {
     public static final double JAVA_VERSION;

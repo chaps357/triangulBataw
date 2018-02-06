@@ -1,6 +1,6 @@
-import io.swagger.client.*;
-import io.swagger.client.api.DefaultApi;
-import io.swagger.client.model.Pair;
+import com.binance.api.price.ApiException;
+import com.binance.api.price.api.DefaultApi;
+import com.binance.api.price.model.Pair;
 import triangulation.Triangulation;
 import triangulation.Variation;
 
@@ -15,11 +15,11 @@ public class FollowVariation {
             Triangulation triangulation = new Triangulation();
             List<String> cryptos = new ArrayList<>();
 
-            cryptos.add("BTC");
-            cryptos.add("ARN");
+            cryptos.add("BNB");
             cryptos.add("ETH");
-            cryptos.add("INS");
+            cryptos.add("MDA");
             cryptos.add("BTC");
+            cryptos.add("BNB");
 
             while(true) {
                 List<Pair> result = apiInstance.price();

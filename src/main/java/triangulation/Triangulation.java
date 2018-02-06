@@ -3,7 +3,7 @@ package triangulation;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import io.swagger.client.model.Pair;
+import com.binance.api.price.model.Pair;
 
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
@@ -12,10 +12,10 @@ import java.util.*;
 
 public class Triangulation {
 
-    private static final int NUMBER_OF_TRADES = 100;
+    private static final int NUMBER_OF_TRADES = 4;
     private static final int DISPLAYED = 10;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.1);
-    private static final String INITIAL_CRYPTO = "BTC";
+    private static final String INITIAL_CRYPTO = "BNB";
     private static final double MINIMUM_PERCENT = 0;
 
 
