@@ -7,12 +7,14 @@ public class Trade {
     private final String target;
     private final BigDecimal price;
     private final BigDecimal initialPrice;
+    private final OperationEnum operation;
 
-    public Trade(String origin, String target, BigDecimal price, BigDecimal initialPrice) {
+    public Trade(String origin, String target, BigDecimal price, BigDecimal initialPrice, OperationEnum operation) {
         this.origin = origin;
         this.target = target;
         this.price = price;
         this.initialPrice = initialPrice;
+        this.operation = operation;
     }
 
     @Override
@@ -47,8 +49,8 @@ public class Trade {
 
     @Override
     public String toString() {
-        return "Trade{" +
-                "origin='" + origin + '\'' +
+        return "Trade{" + operation.name()+
+                " origin='" + origin + '\'' +
                 ", target='" + target + '\'' +
                 ", price=" + initialPrice +
                 '}';

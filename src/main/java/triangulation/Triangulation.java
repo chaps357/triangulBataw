@@ -1,5 +1,7 @@
 package triangulation;
 
+import com.binance.api.client.BinanceApiClientFactory;
+import com.binance.api.client.BinanceApiRestClient;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
@@ -12,12 +14,18 @@ import java.util.*;
 
 public class Triangulation {
 
-    private static final int NUMBER_OF_TRADES = 4;
+    private static final int NUMBER_OF_TRADES = 3;
     private static final int DISPLAYED = 10;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.05);
-    private static final String INITIAL_CRYPTO = "BNB";
+    private static final String INITIAL_CRYPTO = "BTC";
     private static final double MINIMUM_PERCENT = 0;
+    private final BinanceApiRestClient client;
 
+
+    public Triangulation() {
+        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance("dKc3mh02OS6qNR8Q1f56q3MDMqslEj70irgx9JGKgq7Gd0mNLF3KCQrwV2MH1LU2", "UeAjxqAscRpbLXYhPlieLhdaI2i3u6aah6U1vHA0Z2pVdBqen9oXB0i7GaDivxQL");
+        client = factory.newRestClient();
+    }
 
     public Variation followSpecificPath(List<Pair> pairs, List<String> cryptos){
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
@@ -164,9 +172,10 @@ public class Triangulation {
             String masterCrypto = findMasterCrypto(pairSymbol);
             String crypto = pairSymbol.replaceAll(masterCrypto, "");
             //il faut créer un trade pour la crypto et un pour la master avec le prix inversé
-            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice(), pair.getPrice());
-            Trade masterTrade = new Trade(masterCrypto, crypto, BigDecimal.ONE.divide(pair.getPrice(), 10,
-                    RoundingMode.HALF_EVEN), pair.getPrice());
+            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice(), pair.getPrice(), OperationEnum.SELL);
+            BigDecimal invertedPrice = BigDecimal.ONE.divide(pair.getPrice(), 10,
+                    RoundingMode.HALF_EVEN);
+            Trade masterTrade = new Trade(masterCrypto, crypto, invertedPrice, pair.getPrice(), OperationEnum.BUY);
 
             addNewTrade(trades, crypto, cryptoTrade);
             addNewTrade(trades, masterCrypto, masterTrade);

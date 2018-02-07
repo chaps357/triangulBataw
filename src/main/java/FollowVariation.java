@@ -16,11 +16,10 @@ public class FollowVariation {
             Triangulation triangulation = new Triangulation();
             List<String> cryptos = new ArrayList<>();
 
-            cryptos.add("BNB");
-            cryptos.add("RDN");
             cryptos.add("BTC");
-            cryptos.add("RLC");
+            cryptos.add("MCO");
             cryptos.add("BNB");
+            cryptos.add("BTC");
 
             SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
 
