@@ -45,7 +45,7 @@ public class Triangulation {
             });
             path.add(filter.iterator().next());
         }
-        PriceVariation variation = findPriceVariation(path);
+        PriceVariation variation = findPriceVariation(path, true);
         return variation;
     }
 
@@ -69,7 +69,7 @@ public class Triangulation {
         int i = 0;
         for(LinkedList<Trade> path:totalPaths){
             i++;
-            PriceVariation variation = findPriceVariation(path);
+            PriceVariation variation = findPriceVariation(path, false);
             variations.add(variation);
             System.out.println("Variation calculation count: "+i+"/"+totalPaths.size());
         }
@@ -86,26 +86,30 @@ public class Triangulation {
         return;
     }
 
-    private PriceVariation findPriceVariation(LinkedList<Trade> path) {
+    private PriceVariation findPriceVariation(LinkedList<Trade> path, boolean real) {
         BigDecimal variationAmount = BigDecimal.valueOf(100l);
         Iterator<Trade> iterator = path.iterator();
         while(iterator.hasNext()){
             Trade trade = iterator.next();
-            OrderBook orderBook = client.getOrderBook(trade.getPairSymbol(), 5);
-            BigDecimal bestPrice;
-            switch(trade.getOperation()){
-                case BUY:
-                    OrderBookEntry bestBid = orderBook.getBids().get(0);
-                    bestPrice = invertPrice(new BigDecimal(bestBid.getPrice()));
-                    break;
-                case SELL:
-                    OrderBookEntry bestAsk = orderBook.getAsks().get(0);
-                    bestPrice = new BigDecimal(bestAsk.getPrice());
-                    break;
-                default:
-                    throw new RuntimeException("C'est quoi cette opération de merde??? "+ trade.getOperation());
+            if(real) {
+                OrderBook orderBook = client.getOrderBook(trade.getPairSymbol(), 5);
+                BigDecimal bestPrice;
+                switch (trade.getOperation()) {
+                    case BUY:
+                        OrderBookEntry bestBid = orderBook.getBids().get(0);
+                        bestPrice = invertPrice(new BigDecimal(bestBid.getPrice()));
+                        break;
+                    case SELL:
+                        OrderBookEntry bestAsk = orderBook.getAsks().get(0);
+                        bestPrice = new BigDecimal(bestAsk.getPrice());
+                        break;
+                    default:
+                        throw new RuntimeException("C'est quoi cette opération de merde??? " + trade.getOperation());
+                }
+                variationAmount = variationAmount.multiply(bestPrice);
+            }else{
+                variationAmount = variationAmount.multiply(trade.getPrice());
             }
-            variationAmount = variationAmount.multiply(bestPrice);
             BigDecimal tradeFees = variationAmount.divide(BigDecimal.valueOf(100)).multiply(FEES);
             variationAmount = variationAmount.subtract(tradeFees);
 
