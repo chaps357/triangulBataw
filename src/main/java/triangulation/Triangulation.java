@@ -71,7 +71,7 @@ public class Triangulation {
             i++;
             PriceVariation variation = findPriceVariation(path, false);
             variations.add(variation);
-            System.out.println("Variation calculation count: "+i+"/"+totalPaths.size());
+//            System.out.println("Variation calculation count: "+i+"/"+totalPaths.size());
         }
 
         System.out.println("Sort variations...");
@@ -96,19 +96,22 @@ public class Triangulation {
                 BigDecimal bestPrice;
                 switch (trade.getOperation()) {
                     case BUY:
-                        OrderBookEntry bestBid = orderBook.getBids().get(0);
-                        bestPrice = invertPrice(new BigDecimal(bestBid.getPrice()));
-                        break;
-                    case SELL:
                         OrderBookEntry bestAsk = orderBook.getAsks().get(0);
                         bestPrice = new BigDecimal(bestAsk.getPrice());
+                        System.out.println("BUY "+trade.getPairSymbol()+" - PRICE MARKET="+trade.getInitialPrice()+" BEST SELLER="+bestPrice);
+                        break;
+                    case SELL:
+                        OrderBookEntry bestBid = orderBook.getBids().get(0);
+                        BigDecimal bestBidPrice = new BigDecimal(bestBid.getPrice());
+                        System.out.println("SELL "+trade.getPairSymbol()+" - PRICE MARKET="+trade.getInitialPrice()+" BEST BUYER="+bestBidPrice);
+                        bestPrice = invertPrice(bestBidPrice);
                         break;
                     default:
                         throw new RuntimeException("C'est quoi cette opération de merde??? " + trade.getOperation());
                 }
-                variationAmount = variationAmount.multiply(bestPrice);
+                variationAmount = variationAmount.divide(bestPrice,10, RoundingMode.HALF_EVEN);
             }else{
-                variationAmount = variationAmount.multiply(trade.getPrice());
+                variationAmount = variationAmount.divide(trade.getPrice(),10, RoundingMode.HALF_EVEN);
             }
             BigDecimal tradeFees = variationAmount.divide(BigDecimal.valueOf(100)).multiply(FEES);
             variationAmount = variationAmount.subtract(tradeFees);

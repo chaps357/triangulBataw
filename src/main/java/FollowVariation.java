@@ -17,8 +17,8 @@ public class FollowVariation {
             List<String> cryptos = new ArrayList<>();
 
             cryptos.add("BTC");
-            cryptos.add("ETH");
-            cryptos.add("ADX");
+            cryptos.add("NEBL");
+            cryptos.add("BNB");
             cryptos.add("BTC");
 
             SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
