@@ -91,7 +91,21 @@ public class Triangulation {
         Iterator<Trade> iterator = path.iterator();
         while(iterator.hasNext()){
             Trade trade = iterator.next();
-            variationAmount = variationAmount.multiply(trade.getPrice());
+            OrderBook orderBook = client.getOrderBook(trade.getPairSymbol(), 5);
+            BigDecimal bestPrice;
+            switch(trade.getOperation()){
+                case BUY:
+                    OrderBookEntry bestBid = orderBook.getBids().get(0);
+                    bestPrice = invertPrice(new BigDecimal(bestBid.getPrice()));
+                    break;
+                case SELL:
+                    OrderBookEntry bestAsk = orderBook.getAsks().get(0);
+                    bestPrice = new BigDecimal(bestAsk.getPrice());
+                    break;
+                default:
+                    throw new RuntimeException("C'est quoi cette opération de merde??? "+ trade.getOperation());
+            }
+            variationAmount = variationAmount.multiply(bestPrice);
             BigDecimal tradeFees = variationAmount.divide(BigDecimal.valueOf(100)).multiply(FEES);
             variationAmount = variationAmount.subtract(tradeFees);
 
