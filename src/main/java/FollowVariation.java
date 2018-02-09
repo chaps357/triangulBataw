@@ -2,7 +2,7 @@ import com.binance.api.price.ApiException;
 import com.binance.api.price.api.DefaultApi;
 import com.binance.api.price.model.Pair;
 import triangulation.Triangulation;
-import triangulation.Variation;
+import triangulation.PriceVariation;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -17,15 +17,15 @@ public class FollowVariation {
             List<String> cryptos = new ArrayList<>();
 
             cryptos.add("BTC");
-            cryptos.add("MCO");
-            cryptos.add("BNB");
+            cryptos.add("ETH");
+            cryptos.add("ADX");
             cryptos.add("BTC");
 
             SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
 
             while(true) {
                 List<Pair> result = apiInstance.price();
-                Variation variation = triangulation.followSpecificPath(result, cryptos);
+                PriceVariation variation = triangulation.followSpecificPath(result, cryptos);
                 Calendar cal = Calendar.getInstance();
                 String formatDate = sdf.format(cal.getTime());
                 System.out.println(formatDate+":"+variation);

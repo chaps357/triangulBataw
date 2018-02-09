@@ -8,13 +8,16 @@ public class Trade {
     private final BigDecimal price;
     private final BigDecimal initialPrice;
     private final OperationEnum operation;
+    private final String pairSymbol;
 
-    public Trade(String origin, String target, BigDecimal price, BigDecimal initialPrice, OperationEnum operation) {
+    public Trade(String origin, String target, BigDecimal price, BigDecimal initialPrice, OperationEnum operation, String pairSymbol) {
         this.origin = origin;
         this.target = target;
         this.price = price;
         this.initialPrice = initialPrice;
         this.operation = operation;
+        this.pairSymbol = pairSymbol;
+
     }
 
     @Override
@@ -47,9 +50,17 @@ public class Trade {
         return price;
     }
 
+    public OperationEnum getOperation() {
+        return operation;
+    }
+
+    public String getPairSymbol() {
+        return pairSymbol;
+    }
+
     @Override
     public String toString() {
-        return "Trade{" + operation.name()+
+        return "Trade{" + operation.name() +
                 " origin='" + origin + '\'' +
                 ", target='" + target + '\'' +
                 ", price=" + initialPrice +

@@ -3,11 +3,11 @@ package triangulation;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 
-public class Variation{
+public class PriceVariation {
     private BigDecimal variationAmount;
     private LinkedList<Trade> path;
 
-    public Variation(BigDecimal variationAmount, LinkedList<Trade> path) {
+    public PriceVariation(BigDecimal variationAmount, LinkedList<Trade> path) {
         this.variationAmount = variationAmount;
         this.path = path;
     }

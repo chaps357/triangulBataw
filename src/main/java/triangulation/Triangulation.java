@@ -2,6 +2,8 @@ package triangulation;
 
 import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiRestClient;
+import com.binance.api.client.domain.market.OrderBook;
+import com.binance.api.client.domain.market.OrderBookEntry;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
@@ -27,7 +29,7 @@ public class Triangulation {
         client = factory.newRestClient();
     }
 
-    public Variation followSpecificPath(List<Pair> pairs, List<String> cryptos){
+    public PriceVariation followSpecificPath(List<Pair> pairs, List<String> cryptos){
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
         LinkedList<Trade> path = new LinkedList<>();
 
@@ -43,14 +45,14 @@ public class Triangulation {
             });
             path.add(filter.iterator().next());
         }
-        Variation variation = findVariation(path);
+        PriceVariation variation = findPriceVariation(path);
         return variation;
     }
 
     public void trianguleBataw(List<Pair> pairs) {
-//        System.out.println("Listing trades...");
+        System.out.println("Listing trades...");
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
-//        System.out.println("Finding paths...");
+        System.out.println("Finding paths...");
         Set<Map.Entry<String, Set<Trade>>> entries = trades.entrySet();
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
         for (Map.Entry<String, Set<Trade>> entry : entries) {
@@ -61,19 +63,22 @@ public class Triangulation {
             List<LinkedList<Trade>> paths = findPaths(originCrypto, NUMBER_OF_TRADES, trades);
             totalPaths.addAll(paths);
         }
-//        System.out.println("Found "+totalPaths.size()+" paths!");
-//        System.out.println("Calculating variations...");
-        List<Variation> variations = new ArrayList<>();
+        System.out.println("Found "+totalPaths.size()+" paths!");
+        System.out.println("Calculating price variations...");
+        List<PriceVariation> variations = new ArrayList<>();
+        int i = 0;
         for(LinkedList<Trade> path:totalPaths){
-            Variation variation = findVariation(path);
+            i++;
+            PriceVariation variation = findPriceVariation(path);
             variations.add(variation);
+            System.out.println("Variation calculation count: "+i+"/"+totalPaths.size());
         }
 
-//        System.out.println("Sort variations...");
+        System.out.println("Sort variations...");
         variations.sort((o1, o2) -> o2.getVariationAmount().compareTo(o1.getVariationAmount()));
-//        System.out.println("Results!");
-        for(int i=0; i<DISPLAYED; i++){
-            Variation variation = variations.get(i);
+        System.out.println("Results!");
+        for(i=0; i<DISPLAYED; i++){
+            PriceVariation variation = variations.get(i);
             if(variation.getVariationAmount().compareTo(BigDecimal.valueOf(MINIMUM_PERCENT))==1) {
                 System.out.println(variation);
             }
@@ -81,7 +86,7 @@ public class Triangulation {
         return;
     }
 
-    private Variation findVariation(LinkedList<Trade> path) {
+    private PriceVariation findPriceVariation(LinkedList<Trade> path) {
         BigDecimal variationAmount = BigDecimal.valueOf(100l);
         Iterator<Trade> iterator = path.iterator();
         while(iterator.hasNext()){
@@ -91,7 +96,7 @@ public class Triangulation {
             variationAmount = variationAmount.subtract(tradeFees);
 
         }
-        return new Variation(variationAmount.subtract(new BigDecimal(100l)).setScale(2, BigDecimal.ROUND_HALF_DOWN), path);
+        return new PriceVariation(variationAmount.subtract(new BigDecimal(100l)).setScale(2, BigDecimal.ROUND_HALF_DOWN), path);
     }
 
     private List<LinkedList<Trade>> findPaths(String originCypto, int requestedLevel, Map<String, Set<Trade>> trades) {
@@ -172,15 +177,19 @@ public class Triangulation {
             String masterCrypto = findMasterCrypto(pairSymbol);
             String crypto = pairSymbol.replaceAll(masterCrypto, "");
             //il faut créer un trade pour la crypto et un pour la master avec le prix inversé
-            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice(), pair.getPrice(), OperationEnum.SELL);
-            BigDecimal invertedPrice = BigDecimal.ONE.divide(pair.getPrice(), 10,
-                    RoundingMode.HALF_EVEN);
-            Trade masterTrade = new Trade(masterCrypto, crypto, invertedPrice, pair.getPrice(), OperationEnum.BUY);
+            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice(), pair.getPrice(), OperationEnum.SELL, pairSymbol);
+            BigDecimal invertedPrice = invertPrice(pair.getPrice());
+            Trade masterTrade = new Trade(masterCrypto, crypto, invertedPrice, pair.getPrice(), OperationEnum.BUY, pairSymbol);
 
             addNewTrade(trades, crypto, cryptoTrade);
             addNewTrade(trades, masterCrypto, masterTrade);
         }
         return trades;
+    }
+
+    private BigDecimal invertPrice(BigDecimal price) {
+        return BigDecimal.ONE.divide(price, 10,
+                        RoundingMode.HALF_EVEN);
     }
 
     private void addNewTrade(Map<String, Set<Trade>> trades, String crypto, Trade trade) {
