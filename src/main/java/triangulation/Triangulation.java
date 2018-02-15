@@ -20,10 +20,10 @@ import java.util.*;
 public class Triangulation {
 
     private static final int NUMBER_OF_TRADES = 3;
-    private static final int DISPLAYED = 10;
+    private static final Integer DISPLAYED = null;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.05);
-    private static final String INITIAL_CRYPTO = null;
-    private static final Double MINIMUM_PERCENT = null;
+    private static final String INITIAL_CRYPTO = "BTC";
+    private static final Double MINIMUM_PERCENT = 0d;
     private final BinanceApiRestClient client;
     private final SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
 
@@ -80,11 +80,13 @@ public class Triangulation {
 
 //        System.out.println("Sort variations...");
         variations.sort((o1, o2) -> o2.getVariationAmount().compareTo(o1.getVariationAmount()));
-        System.out.println("Results!");
-        for(i=0; i<DISPLAYED; i++){
-            PriceVariation variation = variations.get(i);
-            if(variation.getVariationAmount().compareTo(BigDecimal.valueOf(MINIMUM_PERCENT))==1) {
-                System.out.println(variation);
+//        System.out.println("Results!");
+        if(DISPLAYED!=null) {
+            for (i = 0; i < DISPLAYED; i++) {
+                PriceVariation variation = variations.get(i);
+                if (variation.getVariationAmount().compareTo(BigDecimal.valueOf(MINIMUM_PERCENT)) == 1) {
+                    System.out.println(variation);
+                }
             }
         }
         PriceVariation variation = findPriceVariation(variations.get(0).getPath(), true);
