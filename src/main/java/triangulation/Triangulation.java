@@ -4,6 +4,7 @@ import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
+import com.binance.api.client.exception.BinanceApiException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
@@ -12,6 +13,8 @@ import com.binance.api.price.model.Pair;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.SocketTimeoutException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Triangulation {
@@ -19,9 +22,10 @@ public class Triangulation {
     private static final int NUMBER_OF_TRADES = 3;
     private static final int DISPLAYED = 10;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.05);
-    private static final String INITIAL_CRYPTO = "BTC";
-    private static final double MINIMUM_PERCENT = 0;
+    private static final String INITIAL_CRYPTO = null;
+    private static final Double MINIMUM_PERCENT = null;
     private final BinanceApiRestClient client;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
 
 
     public Triangulation() {
@@ -50,9 +54,9 @@ public class Triangulation {
     }
 
     public void trianguleBataw(List<Pair> pairs) {
-        System.out.println("Listing trades...");
+//        System.out.println("Listing trades...");
         Map<String, Set<Trade>> trades = listAllTrades(pairs);
-        System.out.println("Finding paths...");
+//        System.out.println("Finding paths...");
         Set<Map.Entry<String, Set<Trade>>> entries = trades.entrySet();
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
         for (Map.Entry<String, Set<Trade>> entry : entries) {
@@ -63,8 +67,8 @@ public class Triangulation {
             List<LinkedList<Trade>> paths = findPaths(originCrypto, NUMBER_OF_TRADES, trades);
             totalPaths.addAll(paths);
         }
-        System.out.println("Found "+totalPaths.size()+" paths!");
-        System.out.println("Calculating price variations...");
+//        System.out.println("Found "+totalPaths.size()+" paths!");
+//        System.out.println("Calculating price variations...");
         List<PriceVariation> variations = new ArrayList<>();
         int i = 0;
         for(LinkedList<Trade> path:totalPaths){
@@ -74,7 +78,7 @@ public class Triangulation {
 //            System.out.println("Variation calculation count: "+i+"/"+totalPaths.size());
         }
 
-        System.out.println("Sort variations...");
+//        System.out.println("Sort variations...");
         variations.sort((o1, o2) -> o2.getVariationAmount().compareTo(o1.getVariationAmount()));
         System.out.println("Results!");
         for(i=0; i<DISPLAYED; i++){
@@ -83,41 +87,49 @@ public class Triangulation {
                 System.out.println(variation);
             }
         }
+        PriceVariation variation = findPriceVariation(variations.get(0).getPath(), true);
+        if(MINIMUM_PERCENT == null || variation.getVariationAmount().doubleValue() > MINIMUM_PERCENT) {
+            Calendar cal = Calendar.getInstance();
+            String formatDate = sdf.format(cal.getTime());
+            System.out.println(formatDate + ":" + variation);
+        }
         return;
     }
 
     private PriceVariation findPriceVariation(LinkedList<Trade> path, boolean real) {
-        BigDecimal variationAmount = BigDecimal.valueOf(100l);
-        Iterator<Trade> iterator = path.iterator();
-        while(iterator.hasNext()){
-            Trade trade = iterator.next();
-            if(real) {
-                OrderBook orderBook = client.getOrderBook(trade.getPairSymbol(), 5);
-                BigDecimal bestPrice;
-                switch (trade.getOperation()) {
-                    case BUY:
-                        OrderBookEntry bestAsk = orderBook.getAsks().get(0);
-                        bestPrice = new BigDecimal(bestAsk.getPrice());
-                        System.out.println("BUY "+trade.getPairSymbol()+" - PRICE MARKET="+trade.getInitialPrice()+" BEST SELLER="+bestPrice);
-                        break;
-                    case SELL:
-                        OrderBookEntry bestBid = orderBook.getBids().get(0);
-                        BigDecimal bestBidPrice = new BigDecimal(bestBid.getPrice());
-                        System.out.println("SELL "+trade.getPairSymbol()+" - PRICE MARKET="+trade.getInitialPrice()+" BEST BUYER="+bestBidPrice);
-                        bestPrice = invertPrice(bestBidPrice);
-                        break;
-                    default:
-                        throw new RuntimeException("C'est quoi cette opération de merde??? " + trade.getOperation());
+            BigDecimal variationAmount = BigDecimal.valueOf(100l);
+            Iterator<Trade> iterator = path.iterator();
+            while (iterator.hasNext()) {
+                Trade trade = iterator.next();
+                if (real) {
+                    OrderBook orderBook = client.getOrderBook(trade.getPairSymbol(), 5);
+                    BigDecimal bestPrice;
+                    switch (trade.getOperation()) {
+                        case BUY:
+                            OrderBookEntry bestAsk = orderBook.getAsks().get(0);
+                            bestPrice = new BigDecimal(bestAsk.getPrice());
+                            trade.setBestSeller(bestPrice);
+//                        System.out.println("BUY "+trade.getPairSymbol()+" - PRICE MARKET="+trade.getInitialPrice()+" BEST SELLER="+bestPrice);
+                            break;
+                        case SELL:
+                            OrderBookEntry bestBid = orderBook.getBids().get(0);
+                            BigDecimal bestBidPrice = new BigDecimal(bestBid.getPrice());
+//                        System.out.println("SELL "+trade.getPairSymbol()+" - PRICE MARKET="+trade.getInitialPrice()+" BEST BUYER="+bestBidPrice);
+                            trade.setBestBuyer(bestBidPrice);
+                            bestPrice = invertPrice(bestBidPrice);
+                            break;
+                        default:
+                            throw new RuntimeException("C'est quoi cette opération de merde??? " + trade.getOperation());
+                    }
+                    variationAmount = variationAmount.divide(bestPrice, 10, RoundingMode.HALF_EVEN);
+                } else {
+                    variationAmount = variationAmount.divide(trade.getPrice(), 10, RoundingMode.HALF_EVEN);
                 }
-                variationAmount = variationAmount.divide(bestPrice,10, RoundingMode.HALF_EVEN);
-            }else{
-                variationAmount = variationAmount.divide(trade.getPrice(),10, RoundingMode.HALF_EVEN);
-            }
-            BigDecimal tradeFees = variationAmount.divide(BigDecimal.valueOf(100)).multiply(FEES);
-            variationAmount = variationAmount.subtract(tradeFees);
+                BigDecimal tradeFees = variationAmount.divide(BigDecimal.valueOf(100)).multiply(FEES);
+                variationAmount = variationAmount.subtract(tradeFees);
 
-        }
-        return new PriceVariation(variationAmount.subtract(new BigDecimal(100l)).setScale(2, BigDecimal.ROUND_HALF_DOWN), path);
+            }
+            return new PriceVariation(variationAmount.subtract(new BigDecimal(100l)).setScale(2, BigDecimal.ROUND_HALF_DOWN), path);
     }
 
     private List<LinkedList<Trade>> findPaths(String originCypto, int requestedLevel, Map<String, Set<Trade>> trades) {

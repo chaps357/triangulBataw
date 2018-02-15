@@ -3,6 +3,8 @@ import com.binance.api.price.api.DefaultApi;
 import com.binance.api.price.model.Pair;
 import triangulation.Triangulation;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 public class RunTriangulation {
@@ -11,12 +13,16 @@ public class RunTriangulation {
 
         DefaultApi apiInstance = new DefaultApi();
         Triangulation triangulation = new Triangulation();
-        try {
+        SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
+        while(true) {
+            try {
                 List<Pair> result = apiInstance.price();
                 triangulation.trianguleBataw(result);
-        } catch (ApiException e) {
-            System.err.println("Exception when calling DefaultApi#price");
-            e.printStackTrace();
+            } catch (ApiException e) {
+                Calendar cal = Calendar.getInstance();
+                String formatDate = sdf.format(cal.getTime());
+                System.err.println(formatDate+" - "+e.getMessage());
+            }
         }
     }
 }
