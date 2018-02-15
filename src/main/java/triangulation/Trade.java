@@ -86,11 +86,11 @@ public class Trade {
                 " origin='" + origin + '\'' +
                 ", target='" + target + '\'' +
                 ", price=" + initialPrice;
-        if(operation.equals(OperationEnum.BUY)){
-            log += ", BEST SELLER="+bestSeller;
-        }else{
-            log += ", BEST BUYER="+bestBuyer;
-        }
+//        if(operation.equals(OperationEnum.BUY)){
+//            log += ", BEST SELLER="+bestSeller;
+//        }else{
+//            log += ", BEST BUYER="+bestBuyer;
+//        }
         return log;
     }
 }

@@ -2,6 +2,7 @@ package triangulation;
 
 import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiRestClient;
+import com.binance.api.client.domain.market.BookTicker;
 import com.binance.api.client.domain.market.OrderBook;
 import com.binance.api.client.domain.market.OrderBookEntry;
 import com.binance.api.client.exception.BinanceApiException;
@@ -20,7 +21,7 @@ import java.util.*;
 public class Triangulation {
 
     private static final int NUMBER_OF_TRADES = 3;
-    private static final Integer DISPLAYED = null;
+    private static final Integer DISPLAYED = 1;
     private static final BigDecimal FEES = BigDecimal.valueOf(0.05);
     private static final String INITIAL_CRYPTO = "BTC";
     private static final Double MINIMUM_PERCENT = 0d;
@@ -33,8 +34,9 @@ public class Triangulation {
         client = factory.newRestClient();
     }
 
-    public PriceVariation followSpecificPath(List<Pair> pairs, List<String> cryptos){
-        Map<String, Set<Trade>> trades = listAllTrades(pairs);
+    public PriceVariation followSpecificPath(List<String> cryptos){
+        List<BookTicker> bookTickers = client.getBookTickers();
+        Map<String, Set<Trade>> trades = listAllTrades(bookTickers);
         LinkedList<Trade> path = new LinkedList<>();
 
         for(int i = 0; i<cryptos.size()-1; i++){
@@ -49,13 +51,14 @@ public class Triangulation {
             });
             path.add(filter.iterator().next());
         }
-        PriceVariation variation = findPriceVariation(path, true);
+        PriceVariation variation = findPriceVariation(path, false);
         return variation;
     }
 
-    public void trianguleBataw(List<Pair> pairs) {
+    public void trianguleBataw() {
+        List<BookTicker> bookTickers = client.getBookTickers();
 //        System.out.println("Listing trades...");
-        Map<String, Set<Trade>> trades = listAllTrades(pairs);
+        Map<String, Set<Trade>> trades = listAllTrades(bookTickers);
 //        System.out.println("Finding paths...");
         Set<Map.Entry<String, Set<Trade>>> entries = trades.entrySet();
         List<LinkedList<Trade>> totalPaths = new ArrayList<>();
@@ -84,17 +87,19 @@ public class Triangulation {
         if(DISPLAYED!=null) {
             for (i = 0; i < DISPLAYED; i++) {
                 PriceVariation variation = variations.get(i);
-                if (variation.getVariationAmount().compareTo(BigDecimal.valueOf(MINIMUM_PERCENT)) == 1) {
-                    System.out.println(variation);
+                if (MINIMUM_PERCENT == null || variation.getVariationAmount().compareTo(BigDecimal.valueOf(MINIMUM_PERCENT)) == 1) {
+                    Calendar cal = Calendar.getInstance();
+                    String formatDate = sdf.format(cal.getTime());
+                    System.out.println(formatDate+" - "+variation);
                 }
             }
         }
-        PriceVariation variation = findPriceVariation(variations.get(0).getPath(), true);
-        if(MINIMUM_PERCENT == null || variation.getVariationAmount().doubleValue() > MINIMUM_PERCENT) {
-            Calendar cal = Calendar.getInstance();
-            String formatDate = sdf.format(cal.getTime());
-            System.out.println(formatDate + ":" + variation);
-        }
+//        PriceVariation variation = findPriceVariation(variations.get(0).getPath(), true);
+//        if(MINIMUM_PERCENT == null || variation.getVariationAmount().doubleValue() > MINIMUM_PERCENT) {
+//            Calendar cal = Calendar.getInstance();
+//            String formatDate = sdf.format(cal.getTime());
+//            System.out.println(formatDate + ":" + variation);
+//        }
         return;
     }
 
@@ -202,19 +207,19 @@ public class Triangulation {
         return paths;
     }
 
-    private Map<String, Set<Trade>> listAllTrades(List<Pair> pairs) {
+    private Map<String, Set<Trade>> listAllTrades(List<BookTicker> bookTickers) {
         Map<String, Set<Trade>> trades = new HashMap<>();
-        for (Pair pair : pairs) {
-            String pairSymbol = pair.getSymbol();
+        for (BookTicker bookTicker : bookTickers) {
+            String pairSymbol = bookTicker.getSymbol();
             if (pairSymbol.equals("123456")) {
                 continue;
             }
             String masterCrypto = findMasterCrypto(pairSymbol);
             String crypto = pairSymbol.replaceAll(masterCrypto, "");
             //il faut créer un trade pour la crypto et un pour la master avec le prix inversé
-            Trade cryptoTrade = new Trade(crypto, masterCrypto, pair.getPrice(), pair.getPrice(), OperationEnum.SELL, pairSymbol);
-            BigDecimal invertedPrice = invertPrice(pair.getPrice());
-            Trade masterTrade = new Trade(masterCrypto, crypto, invertedPrice, pair.getPrice(), OperationEnum.BUY, pairSymbol);
+            Trade cryptoTrade = new Trade(crypto, masterCrypto, new BigDecimal(bookTicker.getAskPrice()), new BigDecimal(bookTicker.getAskPrice()), OperationEnum.SELL, pairSymbol);
+            BigDecimal invertedPrice = invertPrice(new BigDecimal(bookTicker.getBidPrice()));
+            Trade masterTrade = new Trade(masterCrypto, crypto, invertedPrice, new BigDecimal(bookTicker.getBidPrice()), OperationEnum.BUY, pairSymbol);
 
             addNewTrade(trades, crypto, cryptoTrade);
             addNewTrade(trades, masterCrypto, masterTrade);

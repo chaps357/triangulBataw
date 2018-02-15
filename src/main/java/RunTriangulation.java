@@ -16,9 +16,8 @@ public class RunTriangulation {
         SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
         while(true) {
             try {
-                List<Pair> result = apiInstance.price();
-                triangulation.trianguleBataw(result);
-            } catch (ApiException e) {
+                triangulation.trianguleBataw();
+            } catch (Exception e) {
                 Calendar cal = Calendar.getInstance();
                 String formatDate = sdf.format(cal.getTime());
                 System.err.println(formatDate+" - "+e.getMessage());

@@ -24,13 +24,12 @@ public class FollowVariation {
             SimpleDateFormat sdf = new SimpleDateFormat("H:mm:ss");
 
             while(true) {
-                List<Pair> result = apiInstance.price();
-                PriceVariation variation = triangulation.followSpecificPath(result, cryptos);
+                PriceVariation variation = triangulation.followSpecificPath(cryptos);
                 Calendar cal = Calendar.getInstance();
                 String formatDate = sdf.format(cal.getTime());
                 System.out.println(formatDate+":"+variation);
             }
-        } catch (ApiException e) {
+        } catch (Exception e) {
             System.err.println("Exception when calling DefaultApi#price");
             e.printStackTrace();
         }
